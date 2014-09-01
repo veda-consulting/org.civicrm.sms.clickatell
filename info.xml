@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <extension key="org.civicrm.sms.clickatell" type="module">
-  <downloadUrl>https://github.com/civicrm/civicrm-core/blob/4.3/tools/extensions/org.civicrm.sms.clickatell.zip?raw=true</downloadUrl>
+  <downloadUrl>https://github.com/veda-consulting/org.civicrm.sms.clickatell/archive/master.zip</downloadUrl>
   <file>clickatell</file>
   <name>clickatell</name>
   <description>Clickatell integration allows delivering short message service (SMS) messages through its Clickatell Gateway to mobile phone users.</description>
@@ -12,14 +12,15 @@
   </urls>
   <license>AGPL</license>
   <maintainer>
-    <author>CiviCRM LLC</author>
-    <email>info@civicrm.org</email>
+    <author>Deepak Srivastava and Parvez Saleh</author>
+    <email>support@vedaconsulting.co.uk</email>
   </maintainer>
-  <releaseDate>2012-11-15</releaseDate>
-  <version>1.0</version>
+  <releaseDate>2014-09-01</releaseDate>
+  <version>2.0</version>
   <develStage>stable</develStage>
   <compatibility>
-    <ver>4.3</ver>
+    <ver>4.4</ver>
+    <ver>4.5</ver>
   </compatibility>
   <comments>For support, please contact project team on the forums.</comments>
 </extension>
