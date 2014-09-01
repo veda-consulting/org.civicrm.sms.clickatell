@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <extension key="org.civicrm.sms.clickatell" type="module">
-  <downloadUrl>https://github.com/veda-consulting/org.civicrm.sms.clickatell/archive/master.zip</downloadUrl>
+  <downloadUrl>https://github.com/veda-consulting/org.civicrm.sms.clickatell/archive/2.0.zip</downloadUrl>
   <file>clickatell</file>
   <name>clickatell</name>
   <description>Clickatell integration allows delivering short message service (SMS) messages through its Clickatell Gateway to mobile phone users.</description>
