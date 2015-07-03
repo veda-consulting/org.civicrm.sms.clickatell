@@ -302,7 +302,7 @@ class org_civicrm_sms_clickatell extends CRM_SMS_Provider {
       $send = explode(":", $response['data']);
 
       if ($send[0] == "ID") {
-        $this->createActivity($send[1], $message, $header, $jobID, $userID);
+        $this->createActivity(trim($send[1]), $message, $header, $jobID, $userID);
         return $send[1];
       }
       else {
