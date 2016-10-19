@@ -93,6 +93,8 @@ class org_civicrm_sms_clickatell extends CRM_SMS_Provider {
     '010' => 'Message expired',
     '011' => 'Message queued for later delivery',
     '012' => 'Out of credit',
+    '013' => 'Clickatell cancelled message delivery',
+    '014' => 'Maximum MT limit exceeded',
   );
 
   /**
@@ -385,6 +387,16 @@ class org_civicrm_sms_clickatell extends CRM_SMS_Provider {
         case "012":
           $statusID = $actStatusIDs['Cancelled'];
           $clickStat = $this->_messageStatus[$status] . " - Out of Credit";
+          break;
+
+        case "013":
+          $statusID = $actStatusIDs['Cancelled'];
+          $clickStat = $this->_messageStatus[$status] . " - Clickatell cancelled message delivery";
+          break;
+
+        case "014":
+          $statusID = $actStatusIDs['Cancelled'];
+          $clickStat = $this->_messageStatus[$status] . " - Maximum MT limit exceeded";
           break;
       }
 
