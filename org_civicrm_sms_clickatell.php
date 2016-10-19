@@ -409,10 +409,16 @@ class org_civicrm_sms_clickatell extends CRM_SMS_Provider {
         CRM_Core_Error::debug_log_message("SMS Response updated for apiMsgId={$apiMsgID}.");
         return TRUE;
       }
+      else {
+        $trace = "unhandled status value of '{$status}'";
+      }
+    }
+    else {
+      $trace = "could not find activity matching that Id";
     }
 
     // if no update is done
-    CRM_Core_Error::debug_log_message("Could not update SMS Response for apiMsgId={$apiMsgID}.");
+    CRM_Core_Error::debug_log_message("Could not update SMS Response for apiMsgId={$apiMsgID} - {$trace}");
     return FALSE;
   }
 
