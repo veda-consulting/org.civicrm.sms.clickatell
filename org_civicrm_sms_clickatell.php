@@ -411,8 +411,12 @@ class org_civicrm_sms_clickatell extends CRM_SMS_Provider {
     $like      = "";
     $fromPhone = $this->retrieve('from', 'String');
     $fromPhone = $this->formatPhone($this->stripPhone($fromPhone), $like, "like");
-
-    return parent::processInbound($fromPhone, $this->retrieve('text', 'String'), NULL, $this->retrieve('moMsgId', 'String'));
+    
+    $body = $this->retrieve('text', 'String');
+    if($this->retrieve('charset', 'String') == 'ISO-8859-1') {
+      $body = utf8_encode($body);
+    }
+    return parent::processInbound($fromPhone, $body, NULL, $this->retrieve('moMsgId', 'String'));
   }
 
   /**
