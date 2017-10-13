@@ -23,7 +23,7 @@ function clickatell_civicrm_xmlMenu(&$files) {
  */
 function clickatell_civicrm_install() {
   $groupID = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_OptionGroup','sms_provider_name','id','name');
-  $params  = 
+  $params  =
     array('option_group_id' => $groupID,
           'label' => 'Clickatell',
           'value' => 'org.civicrm.sms.clickatell',
@@ -33,7 +33,7 @@ function clickatell_civicrm_install() {
           'version'    => 3,);
   require_once 'api/api.php';
   civicrm_api( 'option_value','create', $params );
-  
+
   return _clickatell_civix_civicrm_install();
 }
 
@@ -43,8 +43,8 @@ function clickatell_civicrm_install() {
 function clickatell_civicrm_uninstall() {
   $optionID = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_OptionValue','clickatell','id','name');
   if ($optionID)
-    CRM_Core_BAO_OptionValue::del($optionID); 
-  
+    CRM_Core_BAO_OptionValue::del($optionID);
+
   $filter    =  array('name'  => 'org.civicrm.sms.clickatell');
   $Providers =  CRM_SMS_BAO_Provider::getProviders(False, $filter, False);
   if ($Providers){
@@ -61,13 +61,13 @@ function clickatell_civicrm_uninstall() {
 function clickatell_civicrm_enable() {
   $optionID = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_OptionValue','clickatell' ,'id','name');
   if ($optionID)
-    CRM_Core_BAO_OptionValue::setIsActive($optionID, TRUE); 
-  
+    CRM_Core_BAO_OptionValue::setIsActive($optionID, TRUE);
+
   $filter    =  array('name' => 'org.civicrm.sms.clickatell');
   $Providers =  CRM_SMS_BAO_Provider::getProviders(False, $filter, False);
   if ($Providers){
     foreach($Providers as $key => $value){
-      CRM_SMS_BAO_Provider::setIsActive($value['id'], TRUE); 
+      CRM_SMS_BAO_Provider::setIsActive($value['id'], TRUE);
     }
   }
   return _clickatell_civix_civicrm_enable();
@@ -80,12 +80,12 @@ function clickatell_civicrm_disable() {
   $optionID = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_OptionValue','clickatell','id','name');
   if ($optionID)
     CRM_Core_BAO_OptionValue::setIsActive($optionID, FALSE);
-  
+
   $filter    =  array('name' =>  'org.civicrm.sms.clickatell');
   $Providers =  CRM_SMS_BAO_Provider::getProviders(False, $filter, False);
   if ($Providers){
     foreach($Providers as $key => $value){
-      CRM_SMS_BAO_Provider::setIsActive($value['id'], FALSE); 
+      CRM_SMS_BAO_Provider::setIsActive($value['id'], FALSE);
     }
   }
   return _clickatell_civix_civicrm_disable();
