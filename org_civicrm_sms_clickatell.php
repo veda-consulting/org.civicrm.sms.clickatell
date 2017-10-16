@@ -430,8 +430,18 @@ class org_civicrm_sms_clickatell extends CRM_SMS_Provider {
     $like      = "";
     $fromPhone = $this->retrieve('from', 'String');
     $fromPhone = $this->formatPhone($this->stripPhone($fromPhone), $like, "like");
-
-    return parent::processInbound($fromPhone, $this->retrieve('text', 'String'), NULL, $this->retrieve('moMsgId', 'String'));
+    
+    $body = $this->retrieve('text', 'String');
+    $charset = $this->retrieve('charset', 'String');
+    if ($charset != 'UTF-8') {
+      if (in_array($charset, mb_list_encodings())) {
+        $body = mb_convert_encoding($body, 'UTF-8', $charset);
+      }
+      else {
+        CRM_Core_Error::debug_log_message("Clickatell: mb_convert_encoding doesn't support incoming character set: '$charset'.");
+      }
+    }
+    return parent::processInbound($fromPhone, $body, NULL, $this->retrieve('moMsgId', 'String'));
   }
 
   /**
