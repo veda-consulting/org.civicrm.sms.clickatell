@@ -33,7 +33,8 @@
  *
  */
 class org_civicrm_sms_clickatell extends CRM_SMS_Provider {
-
+  
+  CONST MAX_SMS_CHAR = 459;
   /**
    * api type to use to send a message
    * @var	string
