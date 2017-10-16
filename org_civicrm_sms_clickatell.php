@@ -65,7 +65,7 @@ class org_civicrm_sms_clickatell extends CRM_SMS_Provider {
    */
   protected $_fp;
 
-  public $_apiURL = "https://api.clickatell.com";
+  public $_apiURL = "https://platform.clickatell.com";
 
   protected $_messageType = array(
     'SMS_TEXT',
@@ -143,7 +143,8 @@ class org_civicrm_sms_clickatell extends CRM_SMS_Provider {
     curl_setopt($this->_ch, CURLOPT_SSL_VERIFYHOST, 2);
     curl_setopt($this->_ch, CURLOPT_USERAGENT, 'CiviCRM - http://civicrm.org/');
 
-    $this->authenticate();
+    // GK 13102017 - New API doesn't have authenticate endpoint
+    // $this->authenticate();
   }
 
   /**
@@ -217,7 +218,8 @@ class org_civicrm_sms_clickatell extends CRM_SMS_Provider {
    */
   function formURLPostData($url, &$postDataArray, $id = NULL) {
     $url = $this->_providerInfo['api_url'] . $url;
-    $postDataArray['session_id'] = $this->_sessionID;
+    // GK 13102017 - New API doesn't need this param
+    // $postDataArray['session_id'] = $this->_sessionID;
     if ($id) {
       if (strlen($id) < 32 || strlen($id) > 32) {
         return PEAR::raiseError('Invalid API Message Id');
@@ -243,7 +245,7 @@ class org_civicrm_sms_clickatell extends CRM_SMS_Provider {
   function send($recipients, $header, $message, $jobID = NULL, $userID = NULL) {
     if ($this->_apiType == 'http') {
       $postDataArray = array( );
-      $url = $this->formURLPostData("/http/sendmsg", $postDataArray);
+      $url = $this->formURLPostData("/messages/http/send", $postDataArray);
 
       if (array_key_exists('from', $this->_providerInfo['api_params'])) {
         $postDataArray['from'] = $this->_providerInfo['api_params']['from'];
@@ -253,7 +255,7 @@ class org_civicrm_sms_clickatell extends CRM_SMS_Provider {
       }
       //TODO:
       $postDataArray['to']   = $header['To'];
-      $postDataArray['text'] = utf8_decode(substr($message, 0, 460)); // max of 460 characters, is probably not multi-lingual
+      $postDataArray['content'] = utf8_decode(substr($message, 0, 460)); // max of 460 characters, is probably not multi-lingual
       if (array_key_exists('mo', $this->_providerInfo['api_params'])) {
         $postDataArray['mo'] = $this->_providerInfo['api_params']['mo'];
       }
@@ -296,20 +298,20 @@ class org_civicrm_sms_clickatell extends CRM_SMS_Provider {
         $postData = $this->urlEncode($postDataArray);
         $response = $this->curl($url, $postData);
       }
-      if (PEAR::isError($response)) {
-        return $response;
-      }
-      $send = explode(":", $response['data']);
 
-      if ($send[0] == "ID") {
-        $this->createActivity(trim($send[1]), $message, $header, $jobID, $userID);
-        return $send[1];
-      }
-      else {
+      if ($response['error']) {
+        $errorMessage = $response['error'];
+        CRM_Core_Session::setStatus(ts($errorMessage), ts('Sending SMS Error'), 'error');
         // TODO: Should add a failed activity instead.
-        CRM_Core_Error::debug_log_message($response['data'] . " - for phone: {$postDataArray['to']}");
-        return PEAR::raiseError($response['data'], null, PEAR_ERROR_RETURN);
+        CRM_Core_Error::debug_log_message($response . " - for phone: {$postDataArray['to']}");
+        return;
+      } else {
+        $data = $response['messages'][0];
+
+        $this->createActivity($data->apiMessageId, $message, $header, $jobID, $userID);
+        return $data->apiMessageId;
       }
+
     }
   }
 
@@ -425,41 +427,32 @@ class org_civicrm_sms_clickatell extends CRM_SMS_Provider {
    * @access	private
    */
   function curl($url, $postData) {
-    $this->_fp = tmpfile();
 
-    curl_setopt($this->_ch, CURLOPT_URL, $url);
-    curl_setopt($this->_ch, CURLOPT_POST, 1);
-    curl_setopt($this->_ch, CURLOPT_POSTFIELDS, $postData);
-    curl_setopt($this->_ch, CURLOPT_FILE, $this->_fp);
+    // cliackatell apiKey requires '==' to be passed with the apikey!!!
+    $apiKey = $this->_providerInfo['api_params']['api_id'].'==';
+    // include apiKey in the params
+    $params = $postData . '&apiKey=' . $apiKey;
 
-    $status = curl_exec($this->_ch);
-    $response['http_code'] = curl_getinfo($this->_ch, CURLINFO_HTTP_CODE);
+    $chUrl = $url . '?' . $params;
 
-    if (empty($response['http_code'])) {
-      return PEAR::raiseError('No HTTP Status Code was returned.');
+    curl_setopt($this->_ch, CURLOPT_URL, $chUrl);
+    curl_setopt($this->_ch, CURLOPT_SSL_VERIFYHOST, Civi::settings()->get('verifySSL') ? 2 : 0);
+    curl_setopt($this->_ch, CURLOPT_SSL_VERIFYPEER, Civi::settings()->get('verifySSL'));
+    // return the result on success, FALSE on failure
+    curl_setopt($this->_ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($this->_ch, CURLOPT_TIMEOUT, 36000);
+
+    // Send the data out over the wire
+    $responseData = curl_exec($this->_ch);
+
+    if (!$responseData) {
+      $erroMessage = 'Error: "' . curl_error($this->_ch) . '" - Code: ' . curl_errno($this->_ch);
+      CRM_Core_Session::setStatus(ts($erroMessage), ts('API Error'), 'error');
     }
-    elseif ($response['http_code'] === 0) {
-      return PEAR::raiseError('Cannot connect to the Clickatell API Server.');
-    }
 
-    if ($status) {
-      $response['error'] = curl_error($this->_ch);
-      $response['errno'] = curl_errno($this->_ch);
-    }
+    $result = json_decode($responseData);
 
-    rewind($this->_fp);
-
-    $pairs = "";
-    while ($str = fgets($this->_fp, 4096)) {
-      $pairs .= $str;
-    }
-    fclose($this->_fp);
-
-    $response['data'] = $pairs;
-    unset($pairs);
-    asort($response);
-
-    return ($response);
+    return (array)$result;
   }
 }
 
