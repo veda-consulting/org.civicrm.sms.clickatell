@@ -258,6 +258,8 @@ class org_civicrm_sms_clickatell extends CRM_SMS_Provider {
       }
       //TODO:
       $postDataArray['to']   = $header['To'];
+	   // JS 25042018 - Content for Second Url
+	  $postDataArray['text'] = utf8_decode(substr($message, 0, 460)); // max of 460 characters, is probably not multi-lingual
       $postDataArray['content'] = utf8_decode(substr($message, 0, 460)); // max of 460 characters, is probably not multi-lingual
       if (array_key_exists('mo', $this->_providerInfo['api_params'])) {
         $postDataArray['mo'] = $this->_providerInfo['api_params']['mo'];
@@ -473,6 +475,25 @@ class org_civicrm_sms_clickatell extends CRM_SMS_Provider {
 
     // Send the data out over the wire
     $responseData = curl_exec($this->_ch);
+	
+    // JS 25042018 - If user uses the url "https://api.clickatell.com/" in CiviCRM SMS provider Settings
+	if($this->_providerInfo['api_url'] == "https://api.clickatell.com")
+    {
+	$user = $this->_providerInfo['username'];
+	$password = $this->_providerInfo['password'];
+	$api_id1 = $this->_providerInfo['api_params']['api_id'];
+	$params1 = 'user=' . $user . '&password=' . $password .'&api_id=' . $api_id1;
+	$chUrl = "https://api.clickatell.com/http/sendmsg?" . $params1 . '&' . $postData;
+    CRM_Core_Error::debug_var('churl1', $chUrl);
+    curl_setopt($this->_ch, CURLOPT_URL, $chUrl);
+    curl_setopt($this->_ch, CURLOPT_SSL_VERIFYHOST, Civi::settings()->get('verifySSL') ? 2 : 0);
+    curl_setopt($this->_ch, CURLOPT_SSL_VERIFYPEER, Civi::settings()->get('verifySSL'));
+    // return the result on success, FALSE on failure
+    curl_setopt($this->_ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($this->_ch, CURLOPT_TIMEOUT, 36000);
+    $responseData = curl_exec($this->_ch);
+	}
+	 
 
     if (!$responseData) {
       $erroMessage = 'Error: "' . curl_error($this->_ch) . '" - Code: ' . curl_errno($this->_ch);
