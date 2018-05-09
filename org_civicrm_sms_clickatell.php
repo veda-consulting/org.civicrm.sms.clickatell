@@ -66,8 +66,6 @@ class org_civicrm_sms_clickatell extends CRM_SMS_Provider {
    */
   protected $_fp;
 
-  public $_apiURL = "https://platform.clickatell.com";
-
   protected $_messageType = array(
     'SMS_TEXT',
     'SMS_FLASH',
