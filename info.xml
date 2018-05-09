@@ -15,8 +15,8 @@
     <author>Deepak Srivastava and Parvez Saleh</author>
     <email>support@vedaconsulting.co.uk</email>
   </maintainer>
-  <releaseDate>2017-10-16</releaseDate>
-  <version>4.0</version>
+  <releaseDate>2018-05-09</releaseDate>
+  <version>4.1</version>
   <develStage>stable</develStage>
   <compatibility>
     <ver>4.4</ver>
