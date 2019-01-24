@@ -306,7 +306,7 @@ class org_civicrm_sms_clickatell extends CRM_SMS_Provider {
         $errorMessage = $response['error'];
         CRM_Core_Session::setStatus(ts($errorMessage), ts('Sending SMS Error'), 'error');
         // TODO: Should add a failed activity instead.
-        CRM_Core_Error::debug_log_message($response . " - for phone: {$postDataArray['to']}");
+        CRM_Core_Error::debug_log_message($errorMessage . " - for phone: {$postDataArray['to']}");
         return;
       } else {
         $data = $response['messages'][0];
