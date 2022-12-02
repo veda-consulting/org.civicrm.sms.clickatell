@@ -130,7 +130,7 @@ class org_civicrm_sms_clickatell extends CRM_SMS_Provider {
      * Reuse the curl handle
      */
     $this->_ch = curl_init();
-    if (!$this->_ch || !is_resource($this->_ch)) {
+    if ($this->_ch === FALSE) {
       return PEAR::raiseError('Cannot initialise a new curl handle.');
     }
 
