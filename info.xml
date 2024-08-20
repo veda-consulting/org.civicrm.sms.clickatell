@@ -25,4 +25,8 @@
     <ver>4.7</ver>
   </compatibility>
   <comments>For support, please contact project team on the forums.</comments>
+  <civix>
+    <namespace>CRM/Clickatell</namespace>
+    <format>23.02.1</format>
+  </civix>
 </extension>
