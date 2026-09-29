@@ -43,7 +43,7 @@ function clickatell_civicrm_install() {
 function clickatell_civicrm_uninstall() {
   $optionID = CRM_Core_DAO::getFieldValue('CRM_Core_DAO_OptionValue','clickatell','id','name');
   if ($optionID)
-    CRM_Core_BAO_OptionValue::del($optionID);
+    CRM_Core_BAO_OptionValue::deleteRecord(['id' => $optionID]);
 
   $filter    =  array('name'  => 'org.civicrm.sms.clickatell');
   $Providers =  CRM_SMS_BAO_Provider::getProviders(False, $filter, False);
